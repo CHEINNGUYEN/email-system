@@ -1,6 +1,6 @@
 # 📧 Email Marketing System với Tích hợp AI (AI-Powered Spam Check)
 
-**Đơn vị thực hiện:** Học viện Công nghệ Bưu chính Viễn thông (PTIT)
+**Đơn vị thực hiện:** Nhóm 01-D21: CNPM-01 Học viện Công nghệ Bưu chính Viễn thông (PTIT)
 
 Hệ thống Quản lý Email Marketing hiện đại được xây dựng để tối ưu hóa quy trình gửi thư hàng loạt, quản lý khách hàng theo phân đoạn thông minh và phân tích nội dung thư rác bằng trí tuệ nhân tạo. Hệ thống được thiết kế theo kiến trúc chuẩn **MVC**, sử dụng **Python (Flask)** cho Backend và giao diện **Premium Modern UI** cho Frontend.
 
