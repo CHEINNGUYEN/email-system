@@ -42,11 +42,11 @@ instance/
 *.sqlite
 *.sqlite3
 
-# Data and models (sensitive/private)
-data/
-models/
-*.pkl
-*.csv  # Exclude sample data if sensitive; override for public ones if needed
+# Data and models (include except .env)
+# data/
+# models/
+# *.pkl
+static/sample_contacts.csv
 README.docx
 
 # Logs
