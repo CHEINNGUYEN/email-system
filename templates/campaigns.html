@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block page_title %}Quản lý chiến dịch{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="text-secondary-custom" style="font-size:0.875rem;">
+        <i class="bi bi-envelope-fill me-1"></i>
+        Tổng cộng <strong>{{ campaigns|length }}</strong> chiến dịch
+    </div>
+    <a href="{{ url_for('create_campaign') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle-fill"></i> Tạo chiến dịch mới
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="bi bi-envelope-open-fill me-2 text-primary-custom"></i>Danh sách chiến dịch</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Chiến dịch</th>
+                        <th>Trạng thái</th>
+                        <th>Đã gửi</th>
+                        <th>Ngày tạo</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td>
+                            <div class="fw-600" style="font-size:0.875rem;">{{ campaign.name }}</div>
+                            <small class="text-secondary-custom">
+                                <i class="bi bi-card-heading me-1"></i>{{ campaign.subject }}
+                            </small>
+                        </td>
+                        <td>
+                            {% if campaign.status == 'sent' %}
+                            <span class="badge bg-success"><i class="bi bi-check2-all"></i> Đã gửi</span>
+                            {% elif campaign.status == 'sending' %}
+                            <span class="badge bg-info"><i class="bi bi-send-fill"></i> Đang gửi</span>
+                            {% elif campaign.status == 'scheduled' %}
+                            <span class="badge bg-warning"><i class="bi bi-clock-fill"></i> Đã lên lịch</span>
+                            {% else %}
+                            <span class="badge bg-secondary"><i class="bi bi-file-earmark-text"></i> Nháp</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="fw-600">{{ campaign.total_sent }}</span>
+                            <small class="text-muted-custom ms-1">người nhận</small>
+                        </td>
+                        <td class="text-secondary-custom" style="font-size:0.82rem;">
+                            <div>{{ campaign.created_at.strftime('%d/%m/%Y') }}</div>
+                            <small>{{ campaign.created_at.strftime('%H:%M') }}</small>
+                        </td>
+                        <td>
+                            {% if campaign.status == 'draft' %}
+                            <form method="POST" action="{{ url_for('send_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success"
+                                        onclick="return confirm('Bạn chắc chắn muốn gửi chiến dịch này?')">
+                                    <i class="bi bi-send-fill"></i> Gửi ngay
+                                </button>
+                            </form>
+                            {% elif campaign.status == 'sent' %}
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('campaign_stats', campaign_id=campaign.id) }}"
+                                   class="btn btn-sm btn-outline-primary" title="Xem thống kê">
+                                    <i class="bi bi-bar-chart-fill"></i> Thống kê
+                                </a>
+                                <form action="{{ url_for('delete_campaign', campaign_id=campaign.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Xóa chiến dịch này? Hành động không thể hoàn tác.')">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% elif campaign.status == 'sending' %}
+                            <span class="text-muted-custom" style="font-size:0.82rem;">
+                                <i class="bi bi-hourglass-split"></i> Đang xử lý...
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-envelope-plus" style="font-size:2.5rem;color:var(--border);display:block;margin-bottom:12px;"></i>
+                            <p class="text-muted-custom mb-3">Chưa có chiến dịch nào được tạo.</p>
+                            <a href="{{ url_for('create_campaign') }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle-fill"></i> Tạo chiến dịch đầu tiên
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

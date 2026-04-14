@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #111111;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #1c1c1c;
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%);
+            text-align: center;
+            padding: 35px 20px;
+            color: #d4af37;
+        }
+        .header-title {
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .discount-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            color: #000;
+            font-size: 32px;
+            font-weight: bold;
+            padding: 18px 38px;
+            border-radius: 40px;
+            margin-top: 20px;
+        }
+        .content {
+            padding: 40px 30px;
+            color: #e0e0e0;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d4af37;
+            text-align: center;
+            margin: 40px 0 30px;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 10px;
+        }
+        .package {
+            background-color: #121212;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .package img {
+            width: 100%;
+            display: block;
+        }
+        .package-info {
+            padding: 25px;
+            text-align: center;
+        }
+        .package-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+        .package-desc {
+            font-size: 15px;
+            color: #cccccc;
+        }
+        .button-wrapper {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            color: #000 !important;
+            padding: 16px 45px;
+            text-decoration: none;
+            border-radius: 35px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: transform 0.3s ease;
+        }
+        .footer {
+            background-color: #000000;
+            color: #999999;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 13px;
+        }
+        .footer strong {
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="header-title">MINHTUANSTUDIO</div>
+        <div style="margin-top:10px; font-size:18px;">ƯU ĐÃI ĐẶC BIỆT</div>
+        <div class="discount-badge">GIẢM 20%</div>
+    </div>
+
+    <div class="content">
+        <p style="text-align:center; font-size:20px; font-weight:bold;">
+            Xin chào {{last_name}} {{first_name}},
+        </p>
+
+        <p style="text-align:center;">
+            MINHTUANSTUDIO trân trọng giới thiệu chương trình ưu đãi 
+            <strong>GIẢM 20%</strong> dành riêng cho các 
+            <strong>GÓI CHỤP LUXURY & PREMIUM</strong>.
+        </p>
+
+        <div class="section-title">CÁC GÓI CHỤP NỔI BẬT</div>
+
+        <div class="package">
+            <img src="https://scontent.fthd1-1.fna.fbcdn.net/v/t39.30808-6/618423501_915249507694451_5916896955550090100_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeFdSI_qNOe7uuzjUSWLaGRCv8YUWdvJGqm_xhRZ28kaqcWPrdWv0X9a8O1HOkbhcbIIo8UAMBlffTpcZqHv1pUI&_nc_ohc=mWTyg0GyAgoQ7kNvwGseqQf&_nc_oc=AdlIIe5x6PXP5LpQqtAW52kWaPiTAM8PLwcebWpWXBei9A5_qXaA32wSbfWTT3l9ooSMKj2f7ulGGbs9Lo8lcVwn&_nc_zt=23&_nc_ht=scontent.fthd1-1.fna&_nc_gid=ieCefkwSbv_Q4QeQQBDhpg&oh=00_Afq6z58KmjSK94yi09DkMWhYCRepViAUEDaUWNtoSOrebQ&oe=697FE111" alt="Gói Luxury Studio">
+            <div class="package-info">
+                <div class="package-title">GÓI LUXURY – STUDIO</div>
+                <div class="package-desc">Concept sang trọng, ánh sáng chuẩn studio, chỉnh màu & retouch cao cấp</div>
+            </div>
+        </div>
+
+        <div class="package">
+            <img src="https://scontent.fthd1-1.fna.fbcdn.net/v/t39.30808-6/605390210_897614739457928_5167638211293703126_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeFcwy8icHWLGSFaIADyggxxMMku6ovm9VswyS7qi-b1W0XIeaQfa84LIv7GXMQaacpzLpcUrst-AdYk_nkJNJif&_nc_ohc=q1Z8Mj5fmuwQ7kNvwGbO3hL&_nc_oc=AdmpMTDVwJ6QtKggQ1PM77oWIjPuMSEmWPm6gm27WpKa3Oecrzegenb6cX0kQvAGe0UjLDU93VwTnc8ZIi70F6vB&_nc_zt=23&_nc_ht=scontent.fthd1-1.fna&_nc_gid=H5jryGHPoI4nFFHgGRlcPA&oh=00_Afpn3hL82wlV62MGR0-asSZxXso5KfOtg3wSKRCeABbx7A&oe=697FEEDD" alt="Gói Premium Ngoại Cảnh">
+            <div class="package-info">
+                <div class="package-title">GÓI PREMIUM – NGOẠI CẢNH</div>
+                <div class="package-desc">Không gian tự nhiên, bố cục nghệ thuật, phong cách thời thượng</div>
+            </div>
+        </div>
+
+        <div class="package">
+            <img src="https://scontent.fthd1-1.fna.fbcdn.net/v/t39.30808-6/604811626_897609332791802_2872421685499016992_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEhCBmYTfTrfE0eegrbRFv1KVXyZP5BO4YpVfJk_kE7hiW_iCeOr9pgA2BLEt1l4DbL5--bRnn6nav7YsSVA7rx&_nc_ohc=5wbCs8i-RuwQ7kNvwGFPM3f&_nc_oc=AdmnFWPve8j8xfYInYRnUzEby5E68d3yJSUxn0asxxwS2ANrQKVZaeXZ_LR6ani_xif7uPgf8_v1CIBjADaXo5ve&_nc_zt=23&_nc_ht=scontent.fthd1-1.fna&_nc_gid=U2dfx8YduDO8Gchityr6gA&oh=00_AfqEDZ0Fg3CiGfaD1fsZPJK_aMwua3JzhM5AJc4yyIjVqQ&oe=697FD6A9" alt="Gói Luxury Cá Nhân">
+            <div class="package-info">
+                <div class="package-title">GÓI LUXURY – CÁ NHÂN / CẶP ĐÔI</div>
+                <div class="package-desc">Phong cách tinh tế, cảm xúc tự nhiên, hậu kỳ chuẩn tạp chí</div>
+            </div>
+        </div>
+
+        <div class="button-wrapper">
+            <a href="https://www.facebook.com/Minhtuannphotos" class="button">ĐẶT LỊCH NGAY</a>
+        </div>
+    </div> <div class="footer">
+        <strong>MINHTUANSTUDIO</strong><br>
+        Email: minhtuanstudio@gmail.com<br>
+        Hotline: 098 278 04 82<br><br>
+        Bạn nhận email này vì đã quan tâm đến dịch vụ của chúng tôi
+    </div>
+
+</div>
+
+</body>
+</html>

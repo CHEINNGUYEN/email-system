@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block page_title %}Nhập danh bạ từ file{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-7">
+
+        <!-- Upload Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-cloud-upload-fill me-2 text-primary-custom"></i>Tải lên tệp danh bạ
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="importForm">
+                    <div class="mb-4">
+                        <label for="file" class="form-label">Chọn tệp CSV hoặc Excel</label>
+                        <!-- Drop zone -->
+                        <div class="drop-zone" id="dropZone" onclick="document.getElementById('file').click()">
+                            <i class="bi bi-file-earmark-spreadsheet" style="font-size:2.5rem;color:var(--primary-light);"></i>
+                            <p class="mt-2 mb-1 fw-600" style="font-size:0.95rem;">Kéo thả tệp vào đây</p>
+                            <p class="mb-0 text-muted-custom" style="font-size:0.82rem;">hoặc nhấn để chọn tệp • CSV, XLSX</p>
+                        </div>
+                        <input type="file" class="d-none" id="file" name="file" accept=".csv,.xlsx" required
+                               onchange="showFileName(this)">
+                        <div id="fileName" class="mt-2 text-secondary-custom" style="font-size:0.82rem;display:none;">
+                            <i class="bi bi-file-check-fill text-success me-1"></i>
+                            <span id="fileNameText"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-cloud-upload-fill"></i> Bắt đầu nhập dữ liệu
+                        </button>
+                        <a href="{{ url_for('contacts') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-x-circle"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Format Guide -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-card-list me-2 text-primary-custom"></i>Hướng dẫn định dạng tệp
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-secondary-custom mb-3" style="font-size:0.875rem;">
+                    Tệp phải chứa ít nhất một cột <code>email</code>. Các cột khác là tùy chọn:
+                </p>
+                <div class="row g-2 mb-3">
+                    {% for col, desc in [('email','Bắt buộc — địa chỉ email'),('first_name','Tên'),('last_name','Họ'),('company','Công ty'),('phone','Số điện thoại')] %}
+                    <div class="col-12">
+                        <div class="d-flex align-items-center gap-2 p-2 rounded" style="background:var(--bg);border:1px solid var(--border);">
+                            <code style="font-size:0.8rem;color:var(--primary);min-width:100px;">{{ col }}</code>
+                            <span class="text-secondary-custom" style="font-size:0.82rem;">— {{ desc }}</span>
+                            {% if col == 'email' %}
+                            <span class="badge bg-danger ms-auto" style="font-size:0.65rem;">Bắt buộc</span>
+                            {% else %}
+                            <span class="badge bg-secondary ms-auto" style="font-size:0.65rem;">Tùy chọn</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <p class="fw-600 mb-2" style="font-size:0.82rem;">Ví dụ CSV:</p>
+                <pre class="rounded p-3 mb-3" style="background:var(--bg);border:1px solid var(--border);font-size:0.78rem;overflow-x:auto;"><code>email,first_name,last_name,company,phone
+john@example.com,John,Doe,Acme Inc,0912345678
+jane@example.com,Jane,Smith,Tech Corp,0987654321</code></pre>
+
+                <a href="/static/sample_contacts.csv" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-download"></i> Tải tệp CSV mẫu
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--bg);
+}
+.drop-zone:hover {
+    border-color: var(--primary-light);
+    background: rgba(79,70,229,0.03);
+}
+.drop-zone.dragover {
+    border-color: var(--primary);
+    background: rgba(79,70,229,0.06);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showFileName(input) {
+    if (input.files && input.files[0]) {
+        document.getElementById('fileNameText').textContent = input.files[0].name;
+        document.getElementById('fileName').style.display = 'block';
+    }
+}
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f) { document.getElementById('file').files = e.dataTransfer.files; showFileName(document.getElementById('file')); }
+});
+</script>
+{% endblock %}

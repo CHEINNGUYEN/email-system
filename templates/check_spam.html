@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Kiểm tra Spam — AI Analyzer{% endblock %}
+{% block page_title %}Phân tích Spam bằng AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+
+        <!-- Input Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-cpu-fill me-2 text-primary-custom"></i>
+                    Công cụ phân tích thông minh
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="spamForm" onsubmit="handleSubmit(event)">
+                    <div class="mb-4">
+                        <label for="email" class="form-label">Nội dung Email cần kiểm tra</label>
+                        <textarea class="form-control" id="email" rows="8"
+                            placeholder="Nhập hoặc dán nội dung email vào đây... AI sẽ phân tích và cho bạn biết đây là Spam hay Ham."
+                            required style="resize:vertical;"></textarea>
+                        <div class="form-text mt-1">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Hệ thống sử dụng NLP + Machine Learning để phân loại email.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="algorithm" class="form-label">Chọn mô hình AI</label>
+                        <div class="row g-2" id="algo-cards">
+                            <div class="col-6 col-md-4">
+                                <label class="algo-option" for="algo-lr">
+                                    <input type="radio" name="algorithm" id="algo-lr" value="LR" checked>
+                                    <div class="algo-card">
+                                        <i class="bi bi-lightning-fill"></i>
+                                        <span class="algo-name">Logistic Regression</span>
+                                        <span class="algo-tag">Nhanh nhất</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="algo-option" for="algo-rf">
+                                    <input type="radio" name="algorithm" id="algo-rf" value="RF">
+                                    <div class="algo-card">
+                                        <i class="bi bi-tree-fill"></i>
+                                        <span class="algo-name">Random Forest</span>
+                                        <span class="algo-tag">Chính xác cao</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="algo-option" for="algo-svm">
+                                    <input type="radio" name="algorithm" id="algo-svm" value="SVM">
+                                    <div class="algo-card">
+                                        <i class="bi bi-gem"></i>
+                                        <span class="algo-name">SVM</span>
+                                        <span class="algo-tag">Mạnh mẽ</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="algo-option" for="algo-dt">
+                                    <input type="radio" name="algorithm" id="algo-dt" value="DT">
+                                    <div class="algo-card">
+                                        <i class="bi bi-diagram-2-fill"></i>
+                                        <span class="algo-name">Decision Tree</span>
+                                        <span class="algo-tag">Trực quan</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="algo-option" for="algo-knn">
+                                    <input type="radio" name="algorithm" id="algo-knn" value="KNN">
+                                    <div class="algo-card">
+                                        <i class="bi bi-grid-fill"></i>
+                                        <span class="algo-name">K-Nearest</span>
+                                        <span class="algo-tag">Dựa láng giềng</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100" id="analyzeBtn">
+                        <i class="bi bi-shield-check me-2"></i> Bắt đầu phân tích
+                    </button>
+                </form>
+
+                <!-- Loading -->
+                <div id="loading" class="text-center mt-4" style="display:none;">
+                    <div class="spinner-border text-primary" role="status" style="width:2.5rem;height:2.5rem;"></div>
+                    <p class="mt-3 text-secondary-custom fw-600">AI đang xử lý nội dung email...</p>
+                </div>
+
+                <!-- Result -->
+                <div id="result" class="mt-4" style="display:none;">
+                    <div id="result-inner" class="p-4 rounded-3 text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle-fill me-2 text-primary-custom"></i>So sánh các mô hình AI
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Mô hình</th>
+                                <th>Tốc độ</th>
+                                <th>Độ chính xác</th>
+                                <th>Khi nào dùng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-600">Logistic Regression</td>
+                                <td><span class="badge bg-success">Rất nhanh</span></td>
+                                <td>Tốt</td>
+                                <td class="text-secondary-custom" style="font-size:0.82rem;">Dùng hàng ngày, xử lý nhanh</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-600">Random Forest</td>
+                                <td><span class="badge bg-warning">Trung bình</span></td>
+                                <td>Rất tốt</td>
+                                <td class="text-secondary-custom" style="font-size:0.82rem;">Cần độ chính xác cao nhất</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-600">SVM</td>
+                                <td><span class="badge bg-warning">Trung bình</span></td>
+                                <td>Rất tốt</td>
+                                <td class="text-secondary-custom" style="font-size:0.82rem;">Email phức tạp, nhiều đặc trưng</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-600">Decision Tree</td>
+                                <td><span class="badge bg-success">Nhanh</span></td>
+                                <td>Khá</td>
+                                <td class="text-secondary-custom" style="font-size:0.82rem;">Cần giải thích được quyết định</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-600">K-Nearest Neighbors</td>
+                                <td><span class="badge bg-danger">Chậm</span></td>
+                                <td>Khá</td>
+                                <td class="text-secondary-custom" style="font-size:0.82rem;">Tập dữ liệu nhỏ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Algorithm radio cards */
+.algo-option { display:block; cursor:pointer; margin:0; }
+.algo-option input[type="radio"] { display:none; }
+.algo-card {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    padding:14px 8px;
+    border:1.5px solid var(--border);
+    border-radius:var(--radius-sm);
+    text-align:center;
+    transition:var(--transition);
+    background:#fff;
+    height:90px;
+}
+.algo-card i { font-size:1.4rem; color:var(--text-muted); }
+.algo-name { font-size:0.75rem; font-weight:600; color:var(--text-primary); line-height:1.2; }
+.algo-tag { font-size:0.65rem; color:var(--text-muted); }
+.algo-option input:checked + .algo-card {
+    border-color:var(--primary);
+    background:rgba(79,70,229,0.04);
+    box-shadow:0 0 0 2px rgba(79,70,229,0.15);
+}
+.algo-option input:checked + .algo-card i { color:var(--primary); }
+.algo-option input:checked + .algo-card .algo-name { color:var(--primary); }
+.algo-card:hover { border-color:var(--primary-light); transform:translateY(-2px); }
+
+/* Result styles */
+.result-spam {
+    background:linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.03));
+    border:2px solid rgba(239,68,68,0.3);
+}
+.result-ham {
+    background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03));
+    border:2px solid rgba(16,185,129,0.3);
+}
+.result-icon { font-size:3rem; display:block; margin-bottom:12px; }
+.result-title { font-size:1.4rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:6px; }
+.result-sub { font-size:0.875rem; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function handleSubmit(event) {
+    event.preventDefault();
+    predict();
+}
+
+async function predict() {
+    const email    = document.getElementById('email').value;
+    const algorithm = document.querySelector('input[name="algorithm"]:checked').value;
+    const resultDiv = document.getElementById('result');
+    const resultInner = document.getElementById('result-inner');
+    const loading   = document.getElementById('loading');
+    const btn       = document.getElementById('analyzeBtn');
+
+    loading.style.display = 'block';
+    resultDiv.style.display = 'none';
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang phân tích...';
+
+    try {
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, algorithm })
+        });
+        const data = await response.json();
+
+        loading.style.display = 'none';
+        resultDiv.style.display = 'block';
+
+        if (data.prediction) {
+            const isSpam = data.prediction === 'spam';
+            resultInner.className = isSpam ? 'p-4 rounded-3 result-spam' : 'p-4 rounded-3 result-ham';
+            resultInner.innerHTML = `
+                <span class="result-icon">${isSpam ? '🚨' : '✅'}</span>
+                <div class="result-title" style="color:${isSpam ? '#dc2626' : '#059669'}">
+                    ${isSpam ? 'PHÁT HIỆN SPAM!' : 'EMAIL AN TOÀN'}
+                </div>
+                <p class="result-sub" style="color:${isSpam ? '#7f1d1d' : '#065f46'}">
+                    Mô hình <strong>${data.algorithm}</strong> đã xác định email này
+                    ${isSpam ? 'có khả năng cao là <strong>Spam</strong>.' : 'là <strong>Ham (an toàn)</strong>.'}
+                </p>
+            `;
+        } else {
+            resultInner.className = 'p-4 rounded-3 result-spam';
+            resultInner.innerHTML = `<span class="result-icon">⚠️</span><div class="result-title">Lỗi hệ thống</div><p class="result-sub">${data.error}</p>`;
+        }
+    } catch (error) {
+        loading.style.display = 'none';
+        resultDiv.style.display = 'block';
+        resultInner.className = 'p-4 rounded-3 result-spam';
+        resultInner.innerHTML = '<span class="result-icon">⚠️</span><div class="result-title">Không thể kết nối</div><p class="result-sub">Không thể kết nối đến máy chủ. Vui lòng thử lại.</p>';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-shield-check me-2"></i> Phân tích lại';
+    }
+}
+</script>
+{% endblock %}

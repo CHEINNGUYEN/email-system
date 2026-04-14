@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block page_title %}Chỉnh sửa liên hệ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#818cf8,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:#fff;">
+                    {{ (contact.first_name or contact.email)[0].upper() }}
+                </div>
+                <div>
+                    <h5 class="card-title mb-0">Chỉnh sửa liên hệ</h5>
+                    <small class="text-muted-custom">{{ contact.email }}</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Địa chỉ Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               value="{{ contact.email }}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">Tên</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name"
+                                   value="{{ contact.first_name or '' }}" placeholder="Nhập tên">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Họ</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name"
+                                   value="{{ contact.last_name or '' }}" placeholder="Nhập họ">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="company" class="form-label">Công ty</label>
+                        <input type="text" class="form-control" id="company" name="company"
+                               value="{{ contact.company or '' }}" placeholder="Tên công ty">
+                    </div>
+                    <div class="mb-4">
+                        <label for="phone" class="form-label">Số điện thoại</label>
+                        <input type="tel" class="form-control" id="phone" name="phone"
+                               value="{{ contact.phone or '' }}" placeholder="0912 345 678">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-save-fill"></i> Lưu thay đổi
+                        </button>
+                        <a href="{{ url_for('contacts') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-x-circle"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

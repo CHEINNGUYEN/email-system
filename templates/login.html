@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng nhập — Email Marketing System{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="logo-icon">📧</div>
+            <div>
+                <div class="logo-text">Email Marketing</div>
+                <div class="logo-sub">Auto System</div>
+            </div>
+        </div>
+
+        <h1 class="auth-title">Chào mừng trở lại!</h1>
+        <p class="auth-subtitle">Đăng nhập để tiếp tục quản lý chiến dịch của bạn.</p>
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-3">
+                <label for="username" class="form-label">Tên đăng nhập</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"
+                        style="border:1.5px solid var(--border);border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm);">
+                        <i class="bi bi-person" style="color:var(--text-muted);"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 ps-0" id="username" name="username"
+                        placeholder="Nhập tên đăng nhập" required autocomplete="username"
+                        style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="form-label">Mật khẩu</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"
+                        style="border:1.5px solid var(--border);border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm);">
+                        <i class="bi bi-lock" style="color:var(--text-muted);"></i>
+                    </span>
+                    <input type="password" class="form-control border-start-0 ps-0" id="password" name="password"
+                        placeholder="Nhập mật khẩu" required autocomplete="current-password"
+                        style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+                </div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary w-100 py-2" style="font-size:0.9rem;font-weight:600;">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center mt-4 mb-0" style="font-size:0.875rem;color:var(--text-secondary);">
+            Chưa có tài khoản?
+            <a href="{{ url_for('register') }}" style="color:var(--primary);font-weight:600;text-decoration:none;">
+                Đăng ký ngay
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

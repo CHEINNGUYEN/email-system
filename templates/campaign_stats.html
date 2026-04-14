@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block page_title %}Chi tiết & Thống kê chiến dịch{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <a href="{{ url_for('campaigns') }}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i> Quay lại danh sách
+    </a>
+    <div class="d-flex gap-2">
+        <span class="badge bg-success" style="padding: 10px 16px; font-size: 0.85rem;">
+            <i class="bi bi-check2-all me-1"></i> Trạng thái: {{ campaign.status.upper() }}
+        </span>
+    </div>
+</div>
+
+<!-- Overview Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; border: none;">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div style="width:50px; height:50px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    <i class="bi bi-send-fill text-white"></i>
+                </div>
+                <div>
+                    <h2 class="fw-800 mb-0">{{ campaign.total_sent }}</h2>
+                    <p class="mb-0 opacity-75" style="font-size: 0.875rem;">Tổng số đã gửi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; border: none;">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div style="width:50px; height:50px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    <i class="bi bi-exclamation-triangle-fill text-white"></i>
+                </div>
+                <div>
+                    <h2 class="fw-800 mb-0">{{ campaign.total_bounced }}</h2>
+                    <p class="mb-0 opacity-75" style="font-size: 0.875rem;">Bị lỗi/Bị chặn</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Meta Info -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-info-circle-fill me-2 text-primary-custom"></i>Thông tin tổng quan</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 border-end">
+                        <div class="mb-3">
+                            <label class="text-secondary-custom d-block small mb-1">Tên chiến dịch</label>
+                            <span class="fw-700 fs-5">{{ campaign.name }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-secondary-custom d-block small mb-1">Tiêu đề Email</label>
+                            <span class="text-primary-custom fw-600">{{ campaign.subject }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 ps-4">
+                        <div class="mb-3">
+                            <label class="text-secondary-custom d-block small mb-1">Gửi bởi</label>
+                            <span class="fw-600">{{ campaign.sender_name or 'Hệ thống' }}</span>
+                            <small class="text-muted-custom d-block">&lt;{{ campaign.sender_email }}&gt;</small>
+                        </div>
+                        <div>
+                            <label class="text-secondary-custom d-block small mb-1">Thời gian gửi</label>
+                            <span class="fw-600">
+                                {{ campaign.sent_time.strftime('%H:%M • %d/%m/%Y') if campaign.sent_time else 'Chưa gửi' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Logs Table -->
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-list-check me-2 text-primary-custom"></i>Chi tiết Nhật ký gửi (Top 50)</h5>
+                <span class="badge bg-primary">Tổng {{ campaign.logs|length }} bản ghi</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Người nhận</th>
+                                <th>Trạng thái gửi</th>
+                                <th>Thời gian gửi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in campaign.logs[:50] %}
+                            <tr>
+                                <td>
+                                    <div class="fw-600" style="font-size: 0.875rem;">{{ log.contact.email }}</div>
+                                    <small class="text-muted-custom">{{ log.contact.first_name or '' }} {{ log.contact.last_name or '' }}</small>
+                                </td>
+                                <td>
+                                    {% if log.delivered %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i> Thành công</span>
+                                    {% elif log.bounced %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-exclamation-triangle-fill me-1"></i> Lỗi</span>
+                                    {% else %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-clock-fill me-1"></i> Chờ...</span>
+                                    {% endif %}
+                                </td>
+                                 <td class="text-secondary-custom" style="font-size: 0.82rem;">
+                                     {{ log.sent_at.strftime('%d/%m/%Y %H:%M') if log.sent_at else 'N/A' }}
+                                 </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted-custom">Chưa có nhật ký gửi cho chiến dịch này.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% if campaign.logs|length > 50 %}
+            <div class="card-footer text-center">
+                <small class="text-muted-custom">Đang hiển thị 50 kết quả đầu tiên. Để xem đầy đủ báo cáo, vui lòng thực hiện Xuất dữ liệu.</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

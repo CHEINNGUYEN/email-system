@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng ký — Email Marketing System{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width:460px;">
+        <div class="auth-logo">
+            <div class="logo-icon">📧</div>
+            <div>
+                <div class="logo-text">Email Marketing</div>
+                <div class="logo-sub">Auto System</div>
+            </div>
+        </div>
+
+        <h1 class="auth-title">Tạo tài khoản mới</h1>
+        <p class="auth-subtitle">Điền thông tin để bắt đầu sử dụng hệ thống.</p>
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="mb-3">
+                <label for="username" class="form-label">Tên đăng nhập</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0" style="border:1.5px solid var(--border);border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm);">
+                        <i class="bi bi-person" style="color:var(--text-muted);"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 ps-0" id="username" name="username"
+                           placeholder="Tên đăng nhập (không dấu, không khoảng trắng)" required
+                           style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Địa chỉ Email</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0" style="border:1.5px solid var(--border);border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm);">
+                        <i class="bi bi-envelope" style="color:var(--text-muted);"></i>
+                    </span>
+                    <input type="email" class="form-control border-start-0 ps-0" id="email" name="email"
+                           placeholder="example@email.com" required
+                           style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="form-label">Mật khẩu</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0" style="border:1.5px solid var(--border);border-right:none;border-radius:var(--radius-sm) 0 0 var(--radius-sm);">
+                        <i class="bi bi-lock" style="color:var(--text-muted);"></i>
+                    </span>
+                    <input type="password" class="form-control border-start-0 ps-0" id="password" name="password"
+                           placeholder="Tối thiểu 8 ký tự" required
+                           style="border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+                </div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary w-100 py-2" style="font-size:0.9rem;font-weight:600;">
+                    <i class="bi bi-person-check me-1"></i> Tạo tài khoản
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center mt-4 mb-0" style="font-size:0.875rem;color:var(--text-secondary);">
+            Đã có tài khoản?
+            <a href="{{ url_for('login') }}" style="color:var(--primary);font-weight:600;text-decoration:none;">
+                Đăng nhập ngay
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

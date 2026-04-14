@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block page_title %}Tạo tự động hóa{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Cấu hình tự động hóa</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Tên tự động hóa *</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="trigger_type" class="form-label">Kích hoạt *</label>
+                        <select class="form-select" id="trigger_type" name="trigger_type" required>
+                            <option value="">Chọn kích hoạt</option>
+                            <option value="contact_added">Liên hệ mới được thêm</option>
+                            <option value="email_opened">Email được mở</option>
+                            <option value="email_clicked">Nhấp vào liên kết trong email</option>
+                            <option value="date_based">Ngày cụ thể (sinh nhật, v.v.)</option>
+                            <option value="segment_joined">Liên hệ tham gia một phân đoạn</option>
+                        </select>
+                        <small class="text-muted">Tự động hóa sẽ tự động kích hoạt dựa trên điều kiện này</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quy trình</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Xác định các bước của tự động hóa của bạn</p>
+                    
+                    <div id="workflow-steps">
+                        <div class="card mb-3 border-primary">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6><i class="bi bi-lightning-fill text-warning"></i> Kích hoạt</h6>
+                                </div>
+                                <p class="text-muted mb-0">Khi một liên hệ khớp với kích hoạt đã chọn...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mb-3">
+                            <i class="bi bi-arrow-down text-muted" style="font-size: 24px;"></i>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6><i class="bi bi-envelope"></i> Bước 1: Gửi email</h6>
+                                        <select class="form-select form-select-sm" style="max-width: 300px;">
+                                            <option>Chọn template email</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mb-3">
+                            <i class="bi bi-arrow-down text-muted" style="font-size: 24px;"></i>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6><i class="bi bi-clock"></i> Bước 2: Chờ đợi</h6>
+                                        <div class="d-flex gap-2">
+                                            <input type="number" class="form-control form-control-sm" value="1" style="width: 80px;">
+                                            <select class="form-select form-select-sm" style="width: 120px;">
+                                                <option>Giờ</option>
+                                                <option selected>Ngày</option>
+                                                <option>Tuần</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mb-3">
+                            <i class="bi bi-arrow-down text-muted" style="font-size: 24px;"></i>
+                        </div>
+                        
+                        <div class="card mb-3 border-success">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6><i class="bi bi-check-circle text-success"></i> Điều kiện</h6>
+                                        <p class="mb-2 text-muted">Nếu liên hệ đã mở email trước đó...</p>
+                                        <div class="ms-4">
+                                            <p class="mb-1"><i class="bi bi-arrow-right text-success"></i> <strong>CÓ:</strong> Gửi email tiếp theo</p>
+                                            <p class="mb-0"><i class="bi bi-arrow-right text-danger"></i> <strong>KHÔNG:</strong> Kết thúc tự động hóa</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary" onclick="addStep('email')">
+                                <i class="bi bi-envelope"></i> + Email
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="addStep('wait')">
+                                <i class="bi bi-clock"></i> + Chờ đợi
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="addStep('condition')">
+                                <i class="bi bi-check-circle"></i> + Điều kiện
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Tham số</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="active" name="active" checked>
+                        <label class="form-check-label" for="active">
+                            Kích hoạt tự động hóa
+                        </label>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <small>
+                            <i class="bi bi-info-circle"></i> 
+                            Tự động hóa sẽ tự động kích hoạt cho tất cả các liên hệ phù hợp.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle"></i> Tạo tự động hóa
+                </button>
+                <a href="{{ url_for('automations') }}" class="btn btn-secondary">Hủy</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+function addStep(type) {
+    alert('Tính năng thêm bước: ' + type);
+    // Cần thực hiện: thêm các bước động vào quy trình
+}
+</script>
+{% endblock %}

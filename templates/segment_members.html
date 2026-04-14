@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block page_title %}Thành viên phân đoạn: {{ segment.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <a href="{{ url_for('segments') }}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i> Quay lại danh sách phân đoạn
+    </a>
+    <div class="text-secondary-custom" style="font-size:0.875rem;">
+        <i class="bi bi-people-fill me-1 text-primary-custom"></i>
+        Tổng số <strong>{{ members|length }}</strong> thành viên
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Add Member Side -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-person-plus-fill me-2 text-primary-custom"></i>Thêm thành viên mới</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Địa chỉ Email <span class="text-danger">*</span></label>
+                        <input type="email" name="email" class="form-control" placeholder="example@email.com" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-600">Họ</label>
+                            <input type="text" name="first_name" class="form-control" placeholder="Họ">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-600">Tên</label>
+                            <input type="text" name="last_name" class="form-control" placeholder="Tên">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-600">Công ty</label>
+                        <input type="text" name="company" class="form-control" placeholder="Tên công ty">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary py-2 fw-700">
+                            <i class="bi bi-plus-lg me-1"></i> Thêm vào danh sách
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members List Side -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-list-ul me-2 text-primary-custom"></i>Danh sách thành viên hiện tại</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Thông tin liên hệ</th>
+                                <th>Công ty</th>
+                                <th class="text-end">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in members %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar" style="width:32px;height:32px;border-radius:50%;background:rgba(79,70,229,0.1);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--primary);flex-shrink:0;">
+                                            {{ (m.first_name or m.email)[0].upper() }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-600" style="font-size:0.875rem;">{{ m.first_name }} {{ m.last_name }}</div>
+                                            <small class="text-muted-custom">{{ m.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-secondary-custom" style="font-size: 0.82rem;">{{ m.company or '—' }}</td>
+                                <td class="text-end">
+                                    <form method="POST" action="{{ url_for('remove_segment_member', segment_id=segment.id) }}" style="display:inline;">
+                                        <input type="hidden" name="contact_id" value="{{ m.id }}">
+                                        <button type="submit" class="btn btn-link text-danger p-0" title="Xóa khỏi phân đoạn"
+                                                onclick="return confirm('Bạn có chắc chắn muốn xóa {{ m.email }} khỏi phân đoạn này không?')">
+                                            <i class="bi bi-person-x-fill fs-5"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5">
+                                    <i class="bi bi-people" style="font-size:3rem;color:var(--border);display:block;margin-bottom:1rem;"></i>
+                                    <p class="text-muted-custom mb-0">Phân đoạn này chưa có thành viên nào.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

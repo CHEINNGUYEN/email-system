@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block page_title %}Quản lý phân đoạn{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="text-secondary-custom" style="font-size:0.875rem;">
+        <i class="bi bi-diagram-3-fill me-1"></i>
+        Tổng cộng <strong>{{ segments_info|length }}</strong> phân đoạn
+    </div>
+    <a href="{{ url_for('create_segment') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle-fill"></i> Tạo phân đoạn
+    </a>
+</div>
+
+{% if segments_info %}
+<div class="row g-3">
+    {% for info in segments_info %}
+    {% set segment = info.segment %}
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100" style="transition: var(--transition-slow);">
+            <div class="card-body">
+                <!-- Header -->
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div
+                            style="width:36px;height:36px;border-radius:var(--radius-sm);background:rgba(79,70,229,0.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">
+                            <i class="bi bi-diagram-3-fill text-primary-custom"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-700 mb-0" style="font-size:0.9rem;">{{ segment.name }}</h6>
+                            <small class="text-muted-custom">
+                                {{ segment.created_at.strftime('%d/%m/%Y') }}
+                            </small>
+                        </div>
+                    </div>
+                    <span class="badge bg-primary" style="font-size:0.78rem;">
+                        <i class="bi bi-people-fill"></i> {{ info.count }}
+                    </span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-secondary-custom mb-3" style="font-size:0.82rem;min-height:36px;">
+                    {{ segment.description or 'Chưa có mô tả cho phân đoạn này.' }}
+                </p>
+
+                <!-- Sample emails -->
+                {% if info.sample and info.sample|length > 0 %}
+                <div class="mb-3 p-2 rounded" style="background:var(--bg);border:1px solid var(--border);">
+                    <small class="text-muted-custom d-block mb-1"
+                        style="font-size:0.72rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Mẫu
+                        liên hệ</small>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.6;">
+                        {{ info.sample[:3]|join(', ') }}{% if info.sample|length > 3 %}…{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Filter conditions info -->
+                {% if segment.filter_conditions %}
+                <div class="mb-3">
+                    <small class="badge bg-info" style="font-size:0.72rem;">
+                        <i class="bi bi-funnel-fill"></i> {{ segment.filter_conditions|length }} điều kiện lọc
+                    </small>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="d-flex gap-2 mt-auto">
+                    <a href="{{ url_for('segment_members', segment_id=segment.id) }}"
+                        class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="bi bi-people-fill"></i> Thành viên
+                    </a>
+                    <a href="{{ url_for('edit_segment', segment_id=segment.id) }}"
+                        class="btn btn-outline-primary btn-sm" title="Chỉnh sửa">
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+                    <form action="{{ url_for('delete_segment', segment_id=segment.id) }}" method="POST"
+                        style="display:inline-block;"
+                        onsubmit="return confirm('Bạn có chắc chắn muốn xóa phân đoạn &quot;{{ segment.name }}&quot;? Các chiến dịch đang sử dụng phân đoạn này sẽ bị ảnh hưởng.')">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Xóa">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty state -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-diagram-3" style="font-size:3rem;color:var(--border);display:block;margin-bottom:16px;"></i>
+        <h5 class="fw-700 mb-2">Chưa có phân đoạn nào</h5>
+        <p class="text-secondary-custom mb-4" style="max-width:360px;margin:0 auto 16px;">
+            Tạo phân đoạn để nhóm các liên hệ theo điều kiện, giúp chiến dịch email cá nhân hóa và hiệu quả hơn.
+        </p>
+        <a href="{{ url_for('create_segment') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle-fill"></i> Tạo phân đoạn đầu tiên
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

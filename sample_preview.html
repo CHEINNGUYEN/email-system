@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng 5 thuật toán phân loại</title>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+            background-color: #0f172a;
+            min-height: 100vh;
+        }
+
+        #root {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        <div class="flex flex-col items-center justify-center text-white h-screen w-full">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mb-4"></div>
+            <p class="text-indigo-200 font-medium animate-pulse tracking-widest text-xs uppercase">Đang tải ứng dụng...
+            </p>
+        </div>
+    </div>
+
+    <!-- React and Babel CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect, useRef } = React;
+
+        // Custom Icon Component to handle Lucide icons in the browser
+        const LucideIcon = ({ name, size = 18, className = "" }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (iconRef.current) {
+                    lucide.createIcons({
+                        attrs: {
+                            class: className,
+                            'stroke-width': 2
+                        },
+                        nameAttr: 'data-lucide'
+                    });
+                }
+            }, [name, className]);
+
+            return <i data-lucide={name} style={{ width: size, height: size, display: 'inline-block' }} ref={iconRef}></i>;
+        };
+
+        // Mapping icon names
+        const Activity = (props) => <LucideIcon name="activity" {...props} />;
+        const GitMerge = (props) => <LucideIcon name="git-merge" {...props} />;
+        const Crosshair = (props) => <LucideIcon name="crosshair" {...props} />;
+        const RefreshCcw = (props) => <LucideIcon name="refresh-ccw" {...props} />;
+        const Info = (props) => <LucideIcon name="info" {...props} />;
+        const Trees = (props) => <LucideIcon name="trees" {...props} />;
+        const Maximize = (props) => <LucideIcon name="maximize" {...props} />;
+
+        // --- MAIN APP COMPONENT ---
+        function App() {
+            const [activeTab, setActiveTab] = useState('knn');
+
+            // Render Math on tab change
+            useEffect(() => {
+                if (window.renderMathInElement) {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false }
+                        ],
+                        throwOnError: false
+                    });
+                }
+            });
+
+            return (
+                <div className="min-h-screen text-slate-800 font-sans p-4 md:p-8 w-full">
+                    <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+                        {/* Header */}
+                        <header className="bg-indigo-600 text-white p-6 text-center shadow-md relative z-10">
+                            <h1 className="text-2xl font-bold mb-2">Nhóm 01: Trình Bày Mô Phỏng Các Thuật Toán Phân Loại</h1>
+                            <p className="text-indigo-200 text-sm">Tương tác trực tiếp để hiểu cách máy học đưa ra quyết định</p>
+                        </header>
+
+                        {/* Tab Navigation */}
+                        <div className="flex border-b border-slate-200 bg-slate-100 overflow-x-auto no-scrollbar shadow-inner">
+                            <TabButton active={activeTab === 'knn'} onClick={() => setActiveTab('knn')} icon={<Crosshair size={18} />} label="1. KNN (Trái cây)" />
+                            <TabButton active={activeTab === 'tree'} onClick={() => setActiveTab('tree')} icon={<GitMerge size={18} />} label="2. Decision Tree (Y tế)" />
+                            <TabButton active={activeTab === 'logistic'} onClick={() => setActiveTab('logistic')} icon={<Activity size={18} />} label="3. Logistic Regression (Tín dụng)" />
+                            <TabButton active={activeTab === 'svm'} onClick={() => setActiveTab('svm')} icon={<Maximize size={18} />} label="4. SVM (Spam)" />
+                            <TabButton active={activeTab === 'forest'} onClick={() => setActiveTab('forest')} icon={<Trees size={18} />} label="5. Random Forest" />
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="p-6">
+                            {activeTab === 'knn' && <KNNInteractive />}
+                            {activeTab === 'tree' && <DecisionTreeInteractive />}
+                            {activeTab === 'logistic' && <LogisticInteractive />}
+                            {activeTab === 'svm' && <SVMInteractive />}
+                            {activeTab === 'forest' && <RandomForestInteractive />}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- SUB-COMPONENTS ---
+        function TabButton({ active, onClick, icon, label }) {
+            return (
+                <button
+                    onClick={onClick}
+                    className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors whitespace-nowrap ${active
+                        ? 'bg-white text-indigo-700 border-t-2 border-indigo-600'
+                        : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700 border-t-2 border-transparent'
+                        }`}
+                >
+                    {icon} {label}
+                </button>
+            );
+        }
+
+        // 1. KNN INTERACTIVE DEMO
+        function KNNInteractive() {
+            const [kValue, setKValue] = useState(3);
+            const [newPoint, setNewPoint] = useState(null);
+
+            const dataPoints = useMemo(() => [
+                { id: 1, x: 70, y: 80, type: 'cam' }, { id: 2, x: 85, y: 75, type: 'cam' },
+                { id: 3, x: 60, y: 90, type: 'cam' }, { id: 4, x: 75, y: 65, type: 'cam' },
+                { id: 5, x: 80, y: 85, type: 'cam' }, { id: 6, x: 20, y: 30, type: 'quyt' },
+                { id: 7, x: 35, y: 25, type: 'quyt' }, { id: 8, x: 25, y: 40, type: 'quyt' },
+                { id: 9, x: 40, y: 35, type: 'quyt' }, { id: 10, x: 15, y: 20, type: 'quyt' },
+                { id: 11, x: 50, y: 55, type: 'quyt' }, { id: 12, x: 55, y: 50, type: 'cam' },
+            ], []);
+
+            const nearestNeighbors = useMemo(() => {
+                if (!newPoint) return [];
+                const distances = dataPoints.map(pt => ({
+                    ...pt,
+                    distance: Math.sqrt(Math.pow(pt.x - newPoint.x, 2) + Math.pow(pt.y - newPoint.y, 2))
+                }));
+                return distances.sort((a, b) => a.distance - b.distance).slice(0, kValue);
+            }, [newPoint, kValue, dataPoints]);
+
+            const prediction = useMemo(() => {
+                if (nearestNeighbors.length === 0) return null;
+                const count = { cam: 0, quyt: 0 };
+                nearestNeighbors.forEach(nn => count[nn.type]++);
+                return count.cam > count.quyt ? 'cam' : (count.quyt > count.cam ? 'quyt' : 'hòa');
+            }, [nearestNeighbors]);
+
+            const handleSvgClick = (e) => {
+                const rect = e.target.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = 100 - ((e.clientY - rect.top) / rect.height) * 100;
+                setNewPoint({ x, y });
+            };
+
+            return (
+                <div className="flex flex-col md:flex-row gap-8">
+                    <div className="flex-1">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <Crosshair className="text-indigo-500" /> K-Nearest Neighbors (KNN)
+                        </h2>
+                        <p className="text-slate-600 mb-2 text-sm">
+                            <strong>Tình huống:</strong> Phân loại trái cây (Cam hoặc Quýt) trên băng chuyền dựa vào Trọng lượng (Trục X) và Đường kính (Trục Y).
+                            <br /><br />
+                            <strong>Giải thích hoạt động chi tiết:</strong><br />
+                            1. <strong>Nguyên lý "Láng giềng":</strong> Thuật toán hoạt động theo kiểu "gần mực thì đen, gần đèn thì rạng". Những vật cùng loại thường có các chỉ số vật lý gần bằng nhau, dẫn đến việc chúng nằm tụ tập gần nhau trên biểu đồ.<br />
+                            2. <strong>Đo khoảng cách:</strong> Khi xuất hiện một điểm dữ liệu mới (quả mới), máy tính sẽ tự động lấy thước đo khoảng cách từ nó đến tất cả các điểm đã có sẵn trong hệ thống.<br />
+                            3. <strong>Biểu quyết số đông:</strong> Thuật toán chỉ chọn ra <code className="font-bold bg-slate-100 px-1 rounded">K</code> láng giềng có khoảng cách gần nhất. Điểm mới sẽ tự động được gán nhãn của phe chiếm đa số trong số K láng giềng đó.<br /><br />
+                            👉 <strong>Cách tương tác:</strong> Thay đổi giá trị K, sau đó click vào vùng bất kỳ trên biểu đồ bên cạnh để đặt một quả mới. Thuật toán sẽ tìm K láng giềng gần nhất để quyết định nó là Cam hay Quýt.
+                        </p>
+
+                        {/* MATH BLOCK */}
+                        <div className="mt-4 mb-6 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 shadow-sm">
+                            <strong className="text-indigo-700 block mb-3">Công thức toán học (Theo Báo Cáo):</strong>
+                            <p className="text-xs text-slate-500 font-semibold mb-1">Khoảng cách Euclidean (Ví dụ 2 chiều):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$D = \\sqrt{(x_1 - y_1)^2 + (x_2 - y_2)^2}$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Khoảng cách Euclidean (Tổng quát):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$d(x, y) = \\sum_{i=1}^{N} \\sqrt{x_i^2 - y_i^2}$$"}</div>
+                        </div>
+
+                        <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6 shadow-sm">
+                            <label className="block text-sm font-semibold mb-2">Chọn số lượng láng giềng (K = {kValue})</label>
+                            <input
+                                type="range" min="1" max="9" step="2" value={kValue}
+                                onChange={(e) => setKValue(parseInt(e.target.value))}
+                                className="w-full accent-indigo-600"
+                            />
+                            <p className="text-xs text-slate-500 mt-2">Lưu ý: K thường là số lẻ để tránh trường hợp biểu quyết hòa.</p>
+                        </div>
+
+                        {prediction && (
+                            <div className={`p-4 rounded-lg border shadow-sm ${prediction === 'cam' ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'}`}>
+                                <h3 className="font-bold text-lg mb-1">Kết quả dự đoán:</h3>
+                                <p className="text-slate-700">
+                                    Trong số {kValue} láng giềng gần nhất, đa số là
+                                    <strong className={prediction === 'cam' ? 'text-orange-600' : 'text-green-600'}>
+                                        {prediction === 'cam' ? ' Cam' : ' Quýt'}
+                                    </strong>.
+                                    <br />Vì vậy, quả mới này được phân loại là <strong>{prediction === 'cam' ? 'Cam' : 'Quýt'}</strong>.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex-1 bg-white border-2 border-slate-200 rounded-xl shadow-inner relative overflow-hidden" style={{ aspectRatio: '1/1' }}>
+                        <svg className="w-full h-full cursor-crosshair" viewBox="0 0 100 100" onClick={handleSvgClick}>
+                            <line x1="0" y1="50" x2="100" y2="50" stroke="#f1f5f9" strokeWidth="0.5" />
+                            <line x1="50" y1="0" x2="50" y2="100" stroke="#f1f5f9" strokeWidth="0.5" />
+                            <text x="50" y="98" fontSize="3" fill="#94a3b8" textAnchor="middle">Trọng lượng lớn dần →</text>
+                            <text x="2" y="50" fontSize="3" fill="#94a3b8" transform="rotate(-90 2,50)" textAnchor="middle">Đường kính lớn dần →</text>
+
+                            {newPoint && nearestNeighbors.map((nn, idx) => (
+                                <line
+                                    key={`line-${idx}`}
+                                    x1={newPoint.x} y1={100 - newPoint.y}
+                                    x2={nn.x} y2={100 - nn.y}
+                                    stroke="#6366f1" strokeWidth="0.5" strokeDasharray="2,1" className="animate-pulse"
+                                />
+                            ))}
+                            {dataPoints.map(pt => (
+                                <circle
+                                    key={pt.id} cx={pt.x} cy={100 - pt.y} r="2.5"
+                                    fill={pt.type === 'cam' ? '#f97316' : '#22c55e'} stroke="#fff" strokeWidth="0.5"
+                                />
+                            ))}
+                            {newPoint && (
+                                <circle cx={newPoint.x} cy={100 - newPoint.y} r="3" fill="#6366f1" stroke="#fff" strokeWidth="1" />
+                            )}
+                        </svg>
+
+                        <div className="absolute top-2 right-2 bg-white/90 p-2 rounded text-xs border border-slate-200 shadow-sm flex flex-col gap-1">
+                            <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> Cam</div>
+                            <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span> Quýt</div>
+                            <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span> Điểm mới</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 2. DECISION TREE INTERACTIVE DEMO
+        function DecisionTreeInteractive() {
+            const [currentNodeId, setCurrentNodeId] = useState('q1');
+            const [history, setHistory] = useState([]);
+
+            const treeNodes = {
+                q1: { type: 'question', text: 'Bệnh nhân có sốt trên 38.5°C không?', yes: 'q2', no: 'q3' },
+                q2: { type: 'question', text: 'Có triệu chứng ho kéo dài không?', yes: 'l1', no: 'l2' },
+                q3: { type: 'question', text: 'Cảm thấy đau nhức cơ bắp toàn thân?', yes: 'l3', no: 'l4' },
+                l1: { type: 'leaf', text: 'Dự đoán: CÚM (Influenza)', color: 'bg-red-100 text-red-800 border-red-300' },
+                l2: { type: 'leaf', text: 'Dự đoán: SỐT SIÊU VI', color: 'bg-orange-100 text-orange-800 border-orange-300' },
+                l3: { type: 'leaf', text: 'Dự đoán: CẢM LẠNH NẶNG', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+                l4: { type: 'leaf', text: 'Dự đoán: KHỎE MẠNH (Hoặc bệnh nhẹ)', color: 'bg-green-100 text-green-800 border-green-300' },
+            };
+
+            const currentNode = treeNodes[currentNodeId];
+
+            const handleAnswer = (answer) => {
+                setHistory([...history, { question: currentNode.text, answer: answer ? 'CÓ' : 'KHÔNG' }]);
+                setCurrentNodeId(answer ? currentNode.yes : currentNode.no);
+            };
+
+            const resetTree = () => {
+                setCurrentNodeId('q1');
+                setHistory([]);
+            };
+
+            return (
+                <div className="flex flex-col md:flex-row gap-8">
+                    <div className="flex-1">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <GitMerge className="text-emerald-500" /> Decision Tree (Cây Quyết Định)
+                        </h2>
+                        <p className="text-slate-600 mb-2 text-sm">
+                            <strong>Tình huống:</strong> Hệ thống hỗ trợ chẩn đoán y tế cơ bản.
+                            <br /><br />
+                            <strong>Giải thích hoạt động chi tiết:</strong><br />
+                            1. <strong>Nút gốc (Root):</strong> Bắt đầu với một nhóm cực kỳ đông bệnh nhân. Thuật toán sẽ tính toán xem triệu chứng nào (ví dụ: Sốt) là quan trọng nhất để tách nhóm này thành 2 phe khác biệt nhất có thể.<br />
+                            2. <strong>Tạo nhánh (Branches):</strong> Tại mỗi phe vừa bị chia nhỏ, thuật toán lại tiếp tục tìm câu hỏi Đúng/Sai tốt nhất tiếp theo để chia nhỏ dữ liệu hơn nữa (ví dụ: Ho kéo dài).<br />
+                            3. <strong>Nút lá (Leaves):</strong> Khi một nhóm bị chia nhỏ đến mức "thuần khiết" (trong nhóm chỉ toàn người mắc cùng 1 bệnh) thì nó trở thành một cái "Lá" (Kết quả). Một người bệnh mới chỉ cần đi dọc theo các câu trả lời từ Gốc xuống nhánh là sẽ tới được Lá chẩn đoán cho mình.<br /><br />
+                            👉 <strong>Cách tương tác:</strong> Đóng vai một bệnh nhân, nhấn nút Có/Không để trả lời các câu hỏi và quan sát cách hệ thống dẫn bạn tới kết luận y khoa cuối cùng.
+                        </p>
+
+                        {/* MATH BLOCK */}
+                        <div className="mt-4 mb-6 p-4 bg-emerald-50/50 rounded-xl border border-emerald-100 shadow-sm">
+                            <strong className="text-emerald-700 block mb-3">Công thức toán học (Theo Báo Cáo):</strong>
+                            <p className="text-xs text-slate-500 font-semibold mb-1">Độ vẩn đục Gini (Gini Index):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$Gini(t) = 1 - \\sum_{i=1}^{C} p_i^2$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Lượng hỗn loạn (Entropy):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$Entropy(t) = -\\sum_{i=1}^{C} p_i \\log_2 p_i$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Lượng thông tin thu được (Information Gain):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$Information\\ Gain = Entropy(parent) - \\sum_{k=1}^{K} \\frac{N_k}{N} \\cdot Entropy(k)$$"}</div>
+                        </div>
+
+                        <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <div className="mb-8">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Lịch sử trả lời</span>
+                                {history.length === 0 ? (
+                                    <p className="text-sm text-slate-500 italic">Chưa có dữ liệu.</p>
+                                ) : (
+                                    <ul className="space-y-2">
+                                        {history.map((h, i) => (
+                                            <li key={i} className="text-sm bg-white p-2 rounded border border-slate-100 flex justify-between shadow-sm">
+                                                <span>{h.question}</span>
+                                                <span className={`font-bold ${h.answer === 'CÓ' ? 'text-red-500' : 'text-blue-500'}`}>{h.answer}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+
+                            <div className="bg-white p-6 rounded-lg shadow-md border border-slate-200 text-center">
+                                {currentNode.type === 'question' ? (
+                                    <>
+                                        <h3 className="text-lg font-medium mb-6 text-slate-800">🤔 {currentNode.text}</h3>
+                                        <div className="flex justify-center gap-4">
+                                            <button onClick={() => handleAnswer(true)} className="px-6 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-colors shadow-sm">Có / Đúng</button>
+                                            <button onClick={() => handleAnswer(false)} className="px-6 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium hover:bg-blue-100 transition-colors shadow-sm">Không / Sai</button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className={`p-4 rounded-lg border-2 mb-6 shadow-inner ${currentNode.color}`}>
+                                            <h3 className="text-xl font-bold">{currentNode.text}</h3>
+                                        </div>
+                                        <button onClick={resetTree} className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors shadow-md">
+                                            <RefreshCcw size={16} /> Bắt đầu lại
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 hidden md:flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 p-6 shadow-inner">
+                        <div className="flex flex-col items-center w-full">
+                            <div className={`px-4 py-2 border-2 rounded-full text-sm font-medium transition-all shadow-sm ${history.length === 0 ? 'border-indigo-500 bg-indigo-50 text-indigo-700 scale-110 shadow-md' : 'border-slate-300 bg-white text-slate-400'}`}>
+                                Sốt &gt; 38.5°C?
+                            </div>
+
+                            <div className="flex justify-between w-full mt-4 px-12 relative">
+                                <div className="flex flex-col items-center w-1/2">
+                                    <div className={`text-xs font-bold mb-1 ${history[0]?.answer === 'CÓ' ? 'text-red-500' : 'text-slate-300'}`}>CÓ</div>
+                                    <div className={`px-4 py-2 border-2 rounded-full text-sm font-medium text-center transition-all shadow-sm ${history.length === 1 && history[0].answer === 'CÓ' ? 'border-indigo-500 bg-indigo-50 text-indigo-700 scale-110 shadow-md' : 'border-slate-300 bg-white text-slate-400'}`}>
+                                        Ho kéo dài?
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-center w-1/2">
+                                    <div className={`text-xs font-bold mb-1 ${history[0]?.answer === 'KHÔNG' ? 'text-blue-500' : 'text-slate-300'}`}>KHÔNG</div>
+                                    <div className={`px-4 py-2 border-2 rounded-full text-sm font-medium text-center transition-all shadow-sm ${history.length === 1 && history[0].answer === 'KHÔNG' ? 'border-indigo-500 bg-indigo-50 text-indigo-700 scale-110 shadow-md' : 'border-slate-300 bg-white text-slate-400'}`}>
+                                        Đau cơ?
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="w-full text-center mt-12 pt-8 border-t border-dashed border-slate-300 relative">
+                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-50 px-2 text-xs text-slate-400">Các nút lá (Kết quả)</span>
+                                {currentNode.type === 'leaf' ? (
+                                    <div className={`inline-block px-6 py-3 rounded-lg border-2 shadow-md ${currentNode.color} font-bold animate-bounce`}>
+                                        {currentNode.text}
+                                    </div>
+                                ) : (
+                                    <div className="inline-block px-6 py-3 rounded-lg border-2 border-slate-200 bg-slate-100 text-slate-400 font-medium">
+                                        Đang suy luận...
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 3. LOGISTIC REGRESSION INTERACTIVE DEMO
+        function LogisticInteractive() {
+            const [income, setIncome] = useState(25);
+            const [badDebt, setBadDebt] = useState(1);
+
+            const z = useMemo(() => {
+                const w1 = 0.15, w2 = -1.2, b = -1.5;
+                return (w1 * income) + (w2 * badDebt) + b;
+            }, [income, badDebt]);
+
+            const probability = useMemo(() => 1 / (1 + Math.exp(-z)), [z]);
+            const isApproved = probability >= 0.5;
+
+            return (
+                <div className="flex flex-col md:flex-row gap-8">
+                    <div className="flex-1">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <Activity className="text-blue-500" /> Logistic Regression
+                        </h2>
+                        <p className="text-slate-600 mb-2 text-sm">
+                            <strong>Tình huống:</strong> Hệ thống ngân hàng duyệt thẻ tín dụng (Phân loại nhị phân).
+                            <br /><br />
+                            <strong>Giải thích hoạt động chi tiết:</strong><br />
+                            1. <strong>Chấm điểm thô (Hàm Z):</strong> Thuật toán lấy từng thông tin của bạn nhân với một "Trọng số". Ví dụ: Thu nhập được nhân với số dương (+ điểm), Nợ xấu bị nhân với số âm (- điểm rất nặng). Tất cả cộng lại thành một Điểm tổng Z.<br />
+                            2. <strong>Ép thành Xác suất (Hàm Sigmoid):</strong> Điểm Z có thể là $+5000$ hoặc $-2000$, rất khó để giải thích cho khách hàng. Hàm Sigmoid ra đời để làm 1 phép thuật: Bóp méo điểm Z này, ép nó rơi vừa vặn vào một cái khung từ <code className="font-bold bg-slate-100 px-1 rounded">0 đến 1</code> (tương đương 0% đến 100%).<br />
+                            3. <strong>Ngưỡng cắt (Threshold):</strong> Nếu xác suất cuối cùng từ 50% trở lên, hồ sơ được gán nhãn "Duyệt", dưới 50% gán nhãn "Từ chối".<br /><br />
+                            👉 <strong>Cách tương tác:</strong> Kéo các thanh trượt bên dưới để thay đổi hồ sơ. Quan sát cách điểm Z thay đổi và làm phần trăm xác suất chạy lên/xuống.
+                        </p>
+
+                        {/* MATH BLOCK */}
+                        <div className="mt-4 mb-6 p-4 bg-blue-50/50 rounded-xl border border-blue-100 shadow-sm">
+                            <strong className="text-blue-700 block mb-3">Công thức toán học (Theo Báo Cáo):</strong>
+                            <p className="text-xs text-slate-500 font-semibold mb-1">Mô hình tuyến tính (Tổ hợp đặc trưng):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$z = \\beta_0 + \\beta_1 x_1 + \\beta_2 x_2 + \\dots + \\beta_n x_n$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Hàm chuyển đổi xác suất (Sigmoid):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$P(y=1|x) = \\frac{1}{1 + e^{-z}}$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Hàm mất mát (Cost / Log Loss):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$Cost = -\\frac{1}{m} \\sum [y \\log(P) + (1 - y) \\log(1 - P)]$$"}</div>
+                        </div>
+
+                        <div className="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <div>
+                                <div className="flex justify-between mb-1">
+                                    <label className="text-sm font-semibold text-slate-700">Thu nhập hàng tháng (Triệu VNĐ)</label>
+                                    <span className="text-sm font-bold text-indigo-600">{income} Tr</span>
+                                </div>
+                                <input type="range" min="5" max="80" step="1" value={income} onChange={(e) => setIncome(parseInt(e.target.value))} className="w-full accent-indigo-600" />
+                                <p className="text-xs text-slate-500 mt-1">Hệ số trọng số: +0.15 (Tác động tích cực)</p>
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between mb-1">
+                                    <label className="text-sm font-semibold text-slate-700">Lịch sử nợ xấu (Điểm rủi ro)</label>
+                                    <span className="text-sm font-bold text-red-500">{badDebt} Điểm</span>
+                                </div>
+                                <input type="range" min="0" max="10" step="1" value={badDebt} onChange={(e) => setBadDebt(parseInt(e.target.value))} className="w-full accent-red-500" />
+                                <p className="text-xs text-slate-500 mt-1">Hệ số trọng số: -1.2 (Tác động tiêu cực rất mạnh)</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 p-4 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-200 shadow-sm">
+                            <div className="flex items-start gap-2">
+                                <Info size={16} className="mt-0.5 shrink-0" />
+                                <div>
+                                    <strong>Công thức mô phỏng:</strong> <br />
+                                    <code className="bg-white px-1 py-0.5 rounded text-xs">Điểm Z = (0.15 × Thu nhập) + (-1.2 × Nợ xấu) - 1.5 Bias</code><br />
+                                    <code className="bg-white px-1 py-0.5 rounded text-xs mt-1 inline-block">Xác suất = 1 / (1 + e^-Z)</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center">
+                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md text-center">
+                            <h3 className="text-lg font-medium text-slate-500 mb-2">Xác suất được phê duyệt</h3>
+                            <div className="text-5xl font-black mb-2 tracking-tight transition-colors duration-500" style={{ color: isApproved ? '#16a34a' : '#dc2626' }}>
+                                {(probability * 100).toFixed(1)}%
+                            </div>
+
+                            <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden mb-6 relative shadow-inner">
+                                <div className={`h-full transition-all duration-300 ${isApproved ? 'bg-green-500' : 'bg-red-500'}`} style={{ width: `${probability * 100}%` }}></div>
+                                <div className="absolute top-0 bottom-0 left-1/2 border-l-2 border-slate-800 border-dashed z-10"></div>
+                            </div>
+
+                            <div className={`py-4 rounded-xl border-2 font-bold text-xl uppercase tracking-wider shadow-sm transition-colors duration-500 ${isApproved ? 'bg-green-50 text-green-700 border-green-300' : 'bg-red-50 text-red-700 border-red-300'}`}>
+                                {isApproved ? 'ĐƯỢC PHÊ DUYỆT ✓' : 'TỪ CHỐI ✕'}
+                            </div>
+                            <p className="text-xs text-slate-400 mt-4">Ngưỡng phê duyệt (Threshold) được đặt ở mức 50%</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 4. SVM INTERACTIVE DEMO
+        function SVMInteractive() {
+            const [newPoint, setNewPoint] = useState(null);
+            const points = [
+                { id: 1, x: 10, y: 20, type: 'normal' }, { id: 2, x: 25, y: 15, type: 'normal' },
+                { id: 3, x: 15, y: 35, type: 'normal' }, { id: 4, x: 40, y: 45, type: 'normal', isSV: true },
+                { id: 5, x: 80, y: 85, type: 'spam' }, { id: 6, x: 70, y: 95, type: 'spam' },
+                { id: 7, x: 90, y: 65, type: 'spam' }, { id: 8, x: 60, y: 65, type: 'spam', isSV: true },
+            ];
+
+            const handleSvgClick = (e) => {
+                const rect = e.target.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = 100 - ((e.clientY - rect.top) / rect.height) * 100;
+                setNewPoint({ x, y });
+            };
+
+            const prediction = newPoint ? (newPoint.x + newPoint.y > 105 ? 'spam' : 'normal') : null;
+
+            return (
+                <div className="flex flex-col md:flex-row gap-8">
+                    <div className="flex-1">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <Maximize className="text-purple-500" /> Support Vector Machines (SVM)
+                        </h2>
+                        <p className="text-slate-600 mb-2 text-sm">
+                            <strong>Tình huống:</strong> Phân loại Email Bình thường và Email Spam dựa vào Tần suất các từ khóa đáng ngờ.
+                            <br /><br />
+                            <strong>Giải thích hoạt động chi tiết:</strong><br />
+                            1. <strong>Siêu phẳng (Hyperplane):</strong> Đường nét liền màu tím chia tách 2 nhóm dữ liệu. SVM luôn tìm cách vẽ đường này sao cho khoảng cách tới các nhóm là lớn nhất.<br />
+                            2. <strong>Biên (Margin):</strong> Vùng không gian giới hạn bởi 2 đường nét đứt. SVM cố gắng tối đa hóa độ rộng của "con đường" này để tăng độ an toàn khi phân loại.<br />
+                            3. <strong>Support Vectors:</strong> Là các điểm dữ liệu (có viền đậm) nằm sát với đường ranh giới nhất. Toàn bộ vị trí của đường ranh giới chỉ phụ thuộc vào các điểm này (các điểm ở xa không ảnh hưởng).
+                            <br /><br />
+                            👉 <strong>Cách tương tác:</strong> Click vào biểu đồ để tạo 1 Email mới và xem nó rơi vào bờ nào của ranh giới.
+                        </p>
+
+                        {/* MATH BLOCK */}
+                        <div className="mt-4 mb-6 p-4 bg-purple-50/50 rounded-xl border border-purple-100 shadow-sm">
+                            <strong className="text-purple-700 block mb-3">Công thức toán học (Theo Báo Cáo):</strong>
+                            <p className="text-xs text-slate-500 font-semibold mb-1">Phương trình siêu phẳng & Hàm phân loại:</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$w \\cdot x + b = 0 \\quad \\Rightarrow \\quad f(x) = \\text{sign}(w \\cdot x + b)$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Điều kiện ràng buộc (Support Vectors):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$y_i(w \\cdot x_i + b) \\geq 1$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Khoảng cách lề (Margin):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$Margin = \\frac{2}{||w||} = \\frac{2}{\\sqrt{w_1^2 + w_2^2}}$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Hạt nhân tuyến tính (Linear Kernel):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$K(x_i, x_j) = x_i \\cdot x_j$$"}</div>
+                        </div>
+
+                        {prediction && (
+                            <div className={`p-4 rounded-lg border shadow-sm ${prediction === 'spam' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-green-50 border-green-200 text-green-800'}`}>
+                                <h3 className="font-bold text-lg mb-1">Kết quả kiểm tra Email:</h3>
+                                <p>
+                                    Email mới nằm ở phía <strong>{prediction === 'spam' ? 'trên ranh giới (vùng Spam)' : 'dưới ranh giới (vùng An toàn)'}</strong>. <br />
+                                    Dự đoán: <strong>{prediction === 'spam' ? 'ĐÂY LÀ SPAM ✕' : 'EMAIL BÌNH THƯỜNG ✓'}</strong>
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex-1 bg-white border-2 border-slate-200 rounded-xl shadow-inner relative overflow-hidden" style={{ aspectRatio: '1/1' }}>
+                        <svg className="w-full h-full cursor-crosshair" viewBox="0 0 100 100" onClick={handleSvgClick}>
+                            <line x1="0" y1="50" x2="100" y2="50" stroke="#f1f5f9" strokeWidth="0.5" />
+                            <line x1="50" y1="0" x2="50" y2="100" stroke="#f1f5f9" strokeWidth="0.5" />
+                            <text x="50" y="98" fontSize="3" fill="#94a3b8" textAnchor="middle">Từ khóa "Khuyến mãi" lớn dần →</text>
+                            <text x="2" y="50" fontSize="3" fill="#94a3b8" transform="rotate(-90 2,50)" textAnchor="middle">Từ "Cảnh báo" lớn dần →</text>
+
+                            <polygon points="0,0 100,0 100,100" fill="#fee2e2" opacity="0.3" />
+                            <polygon points="0,0 0,100 100,100" fill="#dcfce3" opacity="0.3" />
+                            <line x1="5" y1="0" x2="100" y2="95" stroke="#9333ea" strokeWidth="1" />
+                            <line x1="0" y1="15" x2="85" y2="100" stroke="#9333ea" strokeWidth="0.5" strokeDasharray="2,2" />
+                            <line x1="25" y1="0" x2="100" y2="75" stroke="#9333ea" strokeWidth="0.5" strokeDasharray="2,2" />
+
+                            {points.map(pt => (
+                                <circle
+                                    key={pt.id} cx={pt.x} cy={100 - pt.y} r="2.5"
+                                    fill={pt.type === 'spam' ? '#dc2626' : '#16a34a'}
+                                    stroke={pt.isSV ? '#000' : '#fff'} strokeWidth={pt.isSV ? '1.5' : '0.5'}
+                                    className={pt.isSV ? 'animate-pulse' : ''}
+                                />
+                            ))}
+                            {newPoint && (
+                                <circle cx={newPoint.x} cy={100 - newPoint.y} r="3" fill="#fbbf24" stroke="#000" strokeWidth="1" />
+                            )}
+                        </svg>
+
+                        <div className="absolute top-2 right-2 bg-white/90 p-2 rounded text-xs border border-slate-200 shadow-sm flex flex-col gap-1">
+                            <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-600 inline-block"></span> Bình thường</div>
+                            <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-600 inline-block"></span> Spam</div>
+                            <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full border border-black inline-block"></span> Support Vector</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 5. RANDOM FOREST INTERACTIVE DEMO
+        function RandomForestInteractive() {
+            const [numTrees, setNumTrees] = useState(3);
+            const [complaints, setComplaints] = useState(2);
+            const [tenure, setTenure] = useState(12);
+
+            const forestResults = useMemo(() => {
+                const baseChurnRisk = (complaints * 25) - (tenure * 2);
+                let churnCount = 0;
+                const treeVotes = [];
+
+                for (let i = 0; i < numTrees; i++) {
+                    const randomNoise = (Math.random() * 60) - 30;
+                    const currentTreeScore = baseChurnRisk + randomNoise;
+                    const vote = currentTreeScore > 0 ? 'Rời bỏ' : 'Ở lại';
+                    if (vote === 'Rời bỏ') churnCount++;
+                    if (i < 20) treeVotes.push(vote);
+                }
+
+                return {
+                    votes: treeVotes,
+                    churnCount,
+                    stayCount: numTrees - churnCount,
+                    percentChurn: (churnCount / numTrees) * 100
+                };
+            }, [numTrees, complaints, tenure]);
+
+            const finalDecision = forestResults.churnCount > forestResults.stayCount ? 'DỰ BÁO RỜI BỎ (CHURN)' : 'DỰ BÁO Ở LẠI';
+
+            return (
+                <div className="flex flex-col md:flex-row gap-8">
+                    <div className="flex-1">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <Trees className="text-teal-600" /> Random Forest (Rừng ngẫu nhiên)
+                        </h2>
+                        <p className="text-slate-600 mb-2 text-sm">
+                            <strong>Tình huống:</strong> Dự báo xem một khách hàng viễn thông có chuẩn bị hủy gói cước (Churn) hay không.
+                            <br /><br />
+                            <strong>Giải thích hoạt động chi tiết:</strong><br />
+                            1. Thay vì dùng 1 "Cây quyết định" dễ bị sai lệch, thuật toán tạo ra một "Rừng" gồm hàng chục, hàng trăm cây.<br />
+                            2. <strong>Bagging:</strong> Mỗi cây được huấn luyện với một phần dữ liệu ngẫu nhiên, nên mỗi cây có một góc nhìn khác nhau (có cây dự đoán Rời bỏ, có cây dự đoán Ở lại).<br />
+                            3. <strong>Biểu quyết số đông (Majority Vote):</strong> Kết quả cuối cùng là lấy ý kiến của phe chiếm đa số. Giúp thuật toán cực kỳ ổn định và chống sai số.
+                        </p>
+
+                        {/* MATH BLOCK */}
+                        <div className="mt-4 mb-6 p-4 bg-teal-50/50 rounded-xl border border-teal-100 shadow-sm">
+                            <strong className="text-teal-700 block mb-3">Công thức toán học (Theo Báo Cáo):</strong>
+                            <p className="text-xs text-slate-500 font-semibold mb-1">Tính độ vẩn đục cho từng nút nhánh con:</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$Gini_{L|R} = 1 - \\sum (p_i)^2$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Gini sau khi chia (Gini Split - dùng để tạo nhiều cây):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$Gini_{split} = \\frac{N_{left}}{N} Gini_{left} + \\frac{N_{right}}{N} Gini_{right}$$"}</div>
+                            <p className="text-xs text-slate-500 font-semibold mt-3 mb-1">Dự đoán Rừng ngẫu nhiên (Bỏ phiếu đa số):</p>
+                            <div className="text-center overflow-x-auto text-sm">{"$$\\hat{y} = \\text{Majority Vote}(Tree_1, Tree_2, \\dots, Tree_n)$$"}</div>
+                        </div>
+
+                        <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div>
+                                <label className="flex justify-between text-sm font-semibold mb-1">
+                                    <span>Số lượng cây quyết định trong Rừng</span>
+                                    <span className="text-teal-600 font-bold">{numTrees} Cây</span>
+                                </label>
+                                <input type="range" min="1" max="100" step="1" value={numTrees} onChange={(e) => setNumTrees(parseInt(e.target.value))} className="w-full accent-teal-600" />
+                                <p className="text-xs text-slate-500">Mẹo: Kéo lên 50-100 cây, bạn sẽ thấy % dự đoán cực kỳ ổn định, ít bị giật cục.</p>
+                            </div>
+
+                            <hr className="border-slate-200" />
+
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="text-sm font-semibold mb-1 block">Số lần khiếu nại (1 tháng)</label>
+                                    <input type="number" min="0" max="10" value={complaints} onChange={(e) => setComplaints(e.target.value)} className="w-full p-2 rounded border border-slate-300" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-sm font-semibold mb-1 block">Số tháng đã dùng DV</label>
+                                    <input type="number" min="1" max="60" value={tenure} onChange={(e) => setTenure(e.target.value)} className="w-full p-2 rounded border border-slate-300" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 bg-white p-6 border-2 border-slate-200 rounded-xl shadow-md flex flex-col justify-between">
+                        <div>
+                            <h3 className="text-center font-bold text-slate-700 mb-4 uppercase tracking-wider">Phiên họp biểu quyết</h3>
+                            <div className="flex flex-wrap gap-2 justify-center mb-6">
+                                {forestResults.votes.map((vote, idx) => (
+                                    <div key={idx} className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm ${vote === 'Rời bỏ' ? 'bg-red-500' : 'bg-green-500'}`} title={`Cây ${idx + 1} dự đoán: ${vote}`}>
+                                        C{idx + 1}
+                                    </div>
+                                ))}
+                                {numTrees > 20 && (
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-200 text-slate-600 text-xs font-bold shadow-sm">
+                                        +{numTrees - 20}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-center shadow-sm">
+                            <div className="flex justify-between text-sm mb-2 font-bold">
+                                <span className="text-green-600">Phần trăm Ở lại: {(100 - forestResults.percentChurn).toFixed(1)}%</span>
+                                <span className="text-red-600">Phần trăm Rời bỏ: {forestResults.percentChurn.toFixed(1)}%</span>
+                            </div>
+                            <div className="w-full h-4 bg-green-500 rounded-full overflow-hidden flex shadow-inner">
+                                <div className="h-full bg-red-500 transition-all duration-300" style={{ width: `${forestResults.percentChurn}%` }}></div>
+                            </div>
+
+                            <div className={`mt-6 py-3 rounded-lg border-2 font-bold text-lg shadow-sm transition-colors duration-500 ${forestResults.churnCount > forestResults.stayCount ? 'bg-red-100 text-red-800 border-red-300' : 'bg-green-100 text-green-800 border-green-300'}`}>
+                                KẾT LUẬN TỪ RỪNG: {finalDecision}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        // --- RENDER BOOTSTRAP ---
+        const container = document.getElementById('root');
+        container.innerHTML = '';
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+
+</html>

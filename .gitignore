@@ -1,0 +1,58 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches and build outputs
+.vscode/
+scratch/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Environment variables
+.env
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Database
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Data and models (sensitive/private)
+data/
+models/
+*.pkl
+*.csv  # Exclude sample data if sensitive; override for public ones if needed
+README.docx
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+.pipenv/
+Pipfile.lock

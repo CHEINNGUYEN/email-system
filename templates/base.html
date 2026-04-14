@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hệ thống Email Tự động{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- ═══ Sidebar ═══ -->
+            <nav class="col-md-2 d-md-flex flex-column sidebar" id="sidebar">
+                <!-- Brand -->
+                <div class="sidebar-brand">
+                    <a href="{{ url_for('dashboard') }}" class="brand-logo text-decoration-none">
+                        <div class="brand-icon">📧</div>
+                        <div>
+                            <div class="brand-name">Email Marketing</div>
+                            <div class="brand-sub">Auto System</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <div class="flex-grow-1 py-2">
+                    <div class="nav-section-label">Menu chính</div>
+                    <ul class="nav flex-column px-1">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+                               href="{{ url_for('dashboard') }}">
+                                <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
+                                Bảng điều khiển
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'contact' in (request.endpoint or '') %}active{% endif %}"
+                               href="{{ url_for('contacts') }}">
+                                <span class="nav-icon"><i class="bi bi-people-fill"></i></span>
+                                Danh bạ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'segment' in (request.endpoint or '') %}active{% endif %}"
+                               href="{{ url_for('segments') }}">
+                                <span class="nav-icon"><i class="bi bi-diagram-3-fill"></i></span>
+                                Phân đoạn
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'campaign' in (request.endpoint or '') %}active{% endif %}"
+                               href="{{ url_for('campaigns') }}">
+                                <span class="nav-icon"><i class="bi bi-envelope-fill"></i></span>
+                                Chiến dịch
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'checkcontent' %}active{% endif %}"
+                               href="{{ url_for('checkcontent') }}">
+                                <span class="nav-icon"><i class="bi bi-shield-check"></i></span>
+                                Kiểm tra Spam
+                            </a>
+                        </li>
+
+                        {% if current_user.is_admin() %}
+                        <div class="sidebar-divider mt-3"></div>
+                        <div class="nav-section-label">Quản trị</div>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'admin' in (request.endpoint or '') %}active{% endif %}"
+                               href="{{ url_for('admin_users') }}">
+                                <span class="nav-icon"><i class="bi bi-shield-lock-fill"></i></span>
+                                Quản lý người dùng
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- User + Logout -->
+                <div class="sidebar-divider"></div>
+                <div class="px-2 pb-2">
+                    <a class="nav-link" href="{{ url_for('logout') }}" style="color:rgba(255,255,255,0.55);">
+                        <span class="nav-icon"><i class="bi bi-box-arrow-right"></i></span>
+                        Đăng xuất
+                    </a>
+                </div>
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ current_user.username[0].upper() }}
+                    </div>
+                    <div>
+                        <div class="user-name">{{ current_user.username }}</div>
+                        <div class="user-role">{{ 'Admin' if current_user.is_admin() else 'Nhân viên' }}</div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- ═══ Main Content ═══ -->
+            <main class="col-md-10 main-wrap px-md-4">
+                <div class="main-content-area">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <h2 class="page-title">{% block page_title %}{% endblock %}</h2>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="mb-3">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {% if category == 'success' %}<i class="bi bi-check-circle-fill"></i>
+                                    {% elif category == 'danger' %}<i class="bi bi-x-circle-fill"></i>
+                                    {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+                                    {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+                                    {{ message }}
+                                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Auth Layout -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="position:fixed;top:20px;right:20px;z-index:9999;min-width:280px;">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-lg" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    {% block auth_content %}{% endblock %}
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
