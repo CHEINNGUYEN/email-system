@@ -12,8 +12,6 @@ Hệ thống cung cấp trải nghiệm người dùng cao cấp với phong cá
 
 ### Bảng điều khiển (Dashboard)
 Hiển thị tổng quan số liệu về liên hệ, chiến dịch, và tăng trưởng danh sách khách hàng thông qua biểu đồ trực quan.
-![Dashboard](file:///a:/PROJCET%20VS%20CODE/email_system/static/images/model_accuracy_chart.png) 
-*(Lưu ý: Hình ảnh minh họa biểu đồ độ chính xác của các mô hình AI)*
 
 ### Các tính năng chính:
 - **Quản lý danh bạ & Import**: Hỗ trợ nhập hàng loạt từ file CSV/Excel.
