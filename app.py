@@ -73,16 +73,16 @@ def load_user(user_id):
 
 # ── TÀI NGUYÊN TĨNH (ASSETS) ──────────────────────────────────────────
 
-@app.route('/logo.png')
-@app.route('/<path:subpath>/logo.png')
-def serve_logo(subpath=None):
-    """Phục vụ logo từ thư mục static cho mọi đường dẫn (tránh lỗi 404)."""
-    return send_from_directory(app.static_folder, 'logo.png')
+# @app.route('/logo.png')
+# @app.route('/<path:subpath>/logo.png')
+# def serve_logo(subpath=None):
+#     """Phục vụ logo từ thư mục static cho mọi đường dẫn (tránh lỗi 404)."""
+#     return send_from_directory(app.static_folder, 'logo.png')
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+# @app.route('/favicon.ico')
+# def favicon():
+#     return send_from_directory(os.path.join(app.root_path, 'static'),
+#                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 # ── ROUTES CHÍNH (MAIN ROUTES) ───────────────────────────────────────
 

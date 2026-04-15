@@ -150,3 +150,84 @@
 </div>
 
 {% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('growthChart').getContext('2d');
+    
+    // Tạo gradient cho biểu đồ
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(58, 134, 255, 0.2)');
+    gradient.addColorStop(1, 'rgba(58, 134, 255, 0.0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ growth_labels | tojson }},
+            datasets: [{
+                label: 'Tổng liên hệ',
+                data: {{ growth_data | tojson }},
+                borderColor: '#3a86ff',
+                backgroundColor: gradient,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#3a86ff',
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#3a86ff',
+                pointHoverBorderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Liên hệ: ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0,
+                        color: '#94a3b8'
+                    },
+                    grid: {
+                        color: 'rgba(226, 232, 240, 0.5)',
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#94a3b8'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
